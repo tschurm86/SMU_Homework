@@ -1,0 +1,94 @@
+Sub stockTicker():
+
+Dim sheetCount As Integer
+sheetCount = ActiveWorkbook.Worksheets.Count
+
+For s = 1 To sheetCount
+
+
+Dim tickerSymbol As String
+Dim nextSymbol As String
+Dim tickerCounter As Integer
+Dim opening As Double
+Dim closing As Double
+Dim stockVolume As Double
+
+tickerCounter = 1
+opening = ActiveWorkbook.Worksheets(s).Cells(2, 3).Value
+stockVolume = 0
+
+ActiveWorkbook.Worksheets(s).Cells(1, 9).Value = "Ticker"
+ActiveWorkbook.Worksheets(s).Cells(1, 10).Value = "Yearly Change"
+ActiveWorkbook.Worksheets(s).Cells(1, 11).Value = "Percent Change"
+ActiveWorkbook.Worksheets(s).Cells(1, 12).Value = "Total Stock Volume"
+
+    For i = 1 To 800000
+        tickerSymbol = ActiveWorkbook.Worksheets(s).Cells(i + 1, 1)
+        nextSymbol = ActiveWorkbook.Worksheets(s).Cells(i + 2, 1)
+        stockVolume = stockVolume + ActiveWorkbook.Worksheets(s).Cells(i + 1, 7).Value
+        If tickerSymbol <> nextSymbol Then
+            tickerCounter = tickerCounter + 1
+            closing = ActiveWorkbook.Worksheets(s).Cells(i + 1, 6).Value
+            ActiveWorkbook.Worksheets(s).Cells(tickerCounter, 9).Value = tickerSymbol
+            ActiveWorkbook.Worksheets(s).Cells(tickerCounter, 10).Value = closing - opening
+            ActiveWorkbook.Worksheets(s).Cells(tickerCounter, 10).NumberFormat = "####0.00"
+            If opening = 0 Then ActiveWorkbook.Worksheets(s).Cells(tickerCounter, 11).Value = 0 Else ActiveWorkbook.Worksheets(s).Cells(tickerCounter, 11).Value = ((closing - opening) / opening)
+            ActiveWorkbook.Worksheets(s).Cells(tickerCounter, 11).NumberFormat = "####0.00%"
+            ActiveWorkbook.Worksheets(s).Cells(tickerCounter, 12).Value = stockVolume
+            stockVolume = 0
+            End If
+        If tickerSymbol <> nextSymbol And closing - opening < 0 Then ActiveWorkbook.Worksheets(s).Cells(tickerCounter, 10).Interior.ColorIndex = 3
+        If tickerSymbol <> nextSymbol And closing - opening > 0 Then ActiveWorkbook.Worksheets(s).Cells(tickerCounter, 10).Interior.ColorIndex = 4
+        If tickerSymbol <> nextSymbol Then opening = ActiveWorkbook.Worksheets(s).Cells(i + 2, 3)
+        If nextSymbol = "" Then Exit For
+    Next i
+
+Dim greatestIncrease As Double
+Dim greatestDecrease As Double
+Dim greatestTotalVolume As Double
+Dim tickerIncrease As String
+Dim tickerDecrease As String
+Dim tickerVolume As String
+
+greatestIncrease = 0
+greatestDecrease = 0
+greatestTotalVolume = 0
+
+
+    For j = 1 To 80000
+        If ActiveWorkbook.Worksheets(s).Cells(j + 1, 10).Value > greatestIncrease Then
+            greatestIncrease = ActiveWorkbook.Worksheets(s).Cells(j + 1, 10).Value
+            tickerIncrease = ActiveWorkbook.Worksheets(s).Cells(j + 1, 9)
+            End If
+        If ActiveWorkbook.Worksheets(s).Cells(j + 1, 10).Value < greatestDecrease Then
+            greatestDecrease = ActiveWorkbook.Worksheets(s).Cells(j + 1, 10).Value
+            tickerDecrease = ActiveWorkbook.Worksheets(s).Cells(j + 1, 9)
+            End If
+        If ActiveWorkbook.Worksheets(s).Cells(j + 1, 12).Value > greatestTotalVolume Then
+            greatestTotalVolume = ActiveWorkbook.Worksheets(s).Cells(j + 1, 12).Value
+            tickerVolume = ActiveWorkbook.Worksheets(s).Cells(j + 1, 9)
+            End If
+        If ActiveWorkbook.Worksheets(s).Cells(j + 2, 9).Value = "" Then Exit For
+    Next j
+
+ActiveWorkbook.Worksheets(s).Cells(1, 15).Value = "Ticker"
+ActiveWorkbook.Worksheets(s).Cells(1, 16).Value = "Value"
+ActiveWorkbook.Worksheets(s).Cells(2, 14).Value = "Greatest % Increase"
+ActiveWorkbook.Worksheets(s).Cells(2, 15).Value = tickerIncrease
+ActiveWorkbook.Worksheets(s).Cells(2, 16).Value = greatestIncrease
+ActiveWorkbook.Worksheets(s).Cells(2, 16).NumberFormat = "########0.00"
+ActiveWorkbook.Worksheets(s).Cells(3, 14).Value = "Greatest % Decrease"
+ActiveWorkbook.Worksheets(s).Cells(3, 15).Value = tickerDecrease
+ActiveWorkbook.Worksheets(s).Cells(3, 16).Value = greatestDecrease
+ActiveWorkbook.Worksheets(s).Cells(3, 16).NumberFormat = "########0.00"
+ActiveWorkbook.Worksheets(s).Cells(4, 14).Value = "Greatest Total Volume"
+ActiveWorkbook.Worksheets(s).Cells(4, 15).Value = tickerVolume
+ActiveWorkbook.Worksheets(s).Cells(4, 16).Value = greatestTotalVolume
+
+ActiveWorkbook.Worksheets(s).Columns("J").ColumnWidth = 14
+ActiveWorkbook.Worksheets(s).Columns("K").ColumnWidth = 14
+ActiveWorkbook.Worksheets(s).Columns("L").ColumnWidth = 19
+ActiveWorkbook.Worksheets(s).Columns("N").ColumnWidth = 19
+
+Next s
+End Sub
